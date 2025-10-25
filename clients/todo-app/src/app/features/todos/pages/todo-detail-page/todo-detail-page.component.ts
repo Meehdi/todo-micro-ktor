@@ -6,20 +6,22 @@ import { Todo, UpdateTodoDto } from '../../models/todo.model';
 import { TodoFormComponent } from '../../components/todo-form/todo-form.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { ErrorMessageComponent } from '../../../../shared/components/error-message/error-message.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ButtonDirective, BadgeDirective, CardComponent, CardContentComponent } from '../../../../shared/ui';
+import { LucideAngularModule, ArrowLeft, Edit, Check, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-todo-detail-page',
   standalone: true,
-  imports: [CommonModule, TodoFormComponent, LoadingSpinnerComponent, ErrorMessageComponent],
+  imports: [CommonModule, TodoFormComponent, LoadingSpinnerComponent, ErrorMessageComponent, ConfirmDialogComponent, ButtonDirective, BadgeDirective, CardComponent, CardContentComponent, LucideAngularModule],
   template: `
-    <div class="container mx-auto max-w-2xl p-6">
+    <div class="max-w-4xl mx-auto">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)">
           {{ editMode() ? 'Edit Todo' : 'Todo Details' }}
         </h1>
-        <button
-          (click)="goBack()"
-          class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+        <button (click)="goBack()" appButton variant="outline" class="gap-1">
+          <lucide-icon [img]="ArrowLeft" [size]="18" [strokeWidth]="2"></lucide-icon>
           Back
         </button>
       </div>
@@ -29,68 +31,79 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
       } @else if (error()) {
         <app-error-message [message]="error()" />
       } @else if (todo()) {
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-          @if (!editMode()) {
-            <div class="space-y-4">
-              <div>
-                <h2 class="text-2xl font-semibold text-gray-900">{{ todo()!.title }}</h2>
-                @if (todo()!.completed) {
-                  <span
-                    class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                    Completed
-                  </span>
+        <app-card>
+          <app-card-content>
+            @if (!editMode()) {
+              <div class="space-y-4">
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-semibold text-gray-900">{{ todo()!.title }}</h2>
+                    @if (todo()!.completed) {
+                      <span appBadge variant="success">Completed</span>
+                    }
+                  </div>
+                </div>
+
+                @if (todo()!.description) {
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1">Description</h3>
+                    <p class="text-gray-600">{{ todo()!.description }}</p>
+                  </div>
                 }
-              </div>
 
-              @if (todo()!.description) {
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700 mb-1">Description</h3>
-                  <p class="text-gray-600">{{ todo()!.description }}</p>
+                @if (todo()!.dueDate) {
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1">Due Date</h3>
+                    <p class="text-gray-600">{{ formatDate(todo()!.dueDate) }}</p>
+                  </div>
+                }
+
+                <div class="text-sm text-gray-500">
+                  <p>Created: {{ formatDate(todo()!.createdAt) }}</p>
+                  <p>Updated: {{ formatDate(todo()!.updatedAt) }}</p>
                 </div>
-              }
 
-              @if (todo()!.dueDate) {
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700 mb-1">Due Date</h3>
-                  <p class="text-gray-600">{{ formatDate(todo()!.dueDate) }}</p>
+                <div class="flex gap-3 pt-4 border-t">
+                  <button (click)="toggleEditMode()" appButton class="flex-1 gap-1">
+                    <lucide-icon [img]="Edit" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    Edit
+                  </button>
+                  <button
+                    *ngIf="!todo()!.completed"
+                    (click)="onComplete()"
+                    appButton
+                    variant="secondary"
+                    class="flex-1 gap-1">
+                    <lucide-icon [img]="Check" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    Mark Complete
+                  </button>
+                  <button (click)="openDeleteDialog()" appButton variant="destructive" class="gap-1">
+                    <lucide-icon [img]="Trash2" [size]="16" [strokeWidth]="2"></lucide-icon>
+                    Delete
+                  </button>
                 </div>
-              }
-
-              <div class="text-sm text-gray-500">
-                <p>Created: {{ formatDate(todo()!.createdAt) }}</p>
-                <p>Updated: {{ formatDate(todo()!.updatedAt) }}</p>
               </div>
-
-              <div class="flex gap-3 pt-4 border-t">
-                <button
-                  (click)="toggleEditMode()"
-                  class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                  Edit
-                </button>
-                <button
-                  *ngIf="!todo()!.completed"
-                  (click)="onComplete()"
-                  class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                  Mark Complete
-                </button>
-                <button
-                  (click)="onDelete()"
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">
-                  Delete
-                </button>
-              </div>
-            </div>
-          } @else {
-            <app-todo-form
-              [todo]="todo()!"
-              [submitting]="submitting()"
-              submitLabel="Update Todo"
-              (submit)="onUpdate($event)"
-              (cancel)="toggleEditMode()">
-            </app-todo-form>
-          }
-        </div>
+            } @else {
+              <app-todo-form
+                [todo]="todo()!"
+                [submitting]="submitting()"
+                submitLabel="Update Todo"
+                (submit)="onUpdate($event)"
+                (cancel)="toggleEditMode()">
+              </app-todo-form>
+            }
+          </app-card-content>
+        </app-card>
       }
+
+      <app-confirm-dialog
+        [open]="showDeleteDialog()"
+        (openChange)="showDeleteDialog.set($event)"
+        title="Delete Todo"
+        description="Are you sure you want to delete this todo? This action cannot be undone."
+        confirmLabel="Delete"
+        (confirm)="confirmDelete()">
+      </app-confirm-dialog>
     </div>
   `,
 })
@@ -104,6 +117,12 @@ export class TodoDetailPageComponent implements OnInit {
   error = signal<string | null>(null);
   editMode = signal(false);
   submitting = signal(false);
+  showDeleteDialog = signal(false);
+
+  readonly ArrowLeft = ArrowLeft;
+  readonly Edit = Edit;
+  readonly Check = Check;
+  readonly Trash2 = Trash2;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -166,9 +185,11 @@ export class TodoDetailPageComponent implements OnInit {
     });
   }
 
-  onDelete() {
-    if (!confirm('Are you sure you want to delete this todo?')) return;
+  openDeleteDialog() {
+    this.showDeleteDialog.set(true);
+  }
 
+  confirmDelete() {
     const currentTodo = this.todo();
     if (!currentTodo) return;
 

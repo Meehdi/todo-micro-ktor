@@ -2,22 +2,23 @@ import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Todo } from '../../models/todo.model';
+import { ButtonDirective, InputDirective, TextareaDirective, LabelDirective } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-todo-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonDirective, InputDirective, TextareaDirective, LabelDirective],
   template: `
     <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="space-y-6">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="title" appLabel class="mb-1 block">
           Title *
         </label>
         <input
           id="title"
           type="text"
           formControlName="title"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          appInput
           [class.border-red-500]="title?.invalid && title?.touched" />
         @if (title?.invalid && title?.touched) {
           <p class="text-red-600 text-sm mt-1">
@@ -32,39 +33,31 @@ import { Todo } from '../../models/todo.model';
       </div>
 
       <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="description" appLabel class="mb-1 block">
           Description
         </label>
         <textarea
           id="description"
           formControlName="description"
           rows="4"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          appTextarea>
         </textarea>
-      </div>
-
-      <div>
-        <label for="dueDate" class="block text-sm font-medium text-gray-700 mb-1">
-          Due Date
-        </label>
-        <input
-          id="dueDate"
-          type="datetime-local"
-          formControlName="dueDate"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
 
       <div class="flex gap-3">
         <button
           type="submit"
+          appButton
           [disabled]="todoForm.invalid || submitting"
-          class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          class="flex-1">
           {{ submitLabel }}
         </button>
         <button
           type="button"
+          appButton
+          variant="secondary"
           (click)="onCancel()"
-          class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+          class="flex-1">
           Cancel
         </button>
       </div>
@@ -83,7 +76,6 @@ export class TodoFormComponent implements OnInit {
   todoForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
     description: [''],
-    dueDate: [''],
   });
 
   get title() {
@@ -95,7 +87,6 @@ export class TodoFormComponent implements OnInit {
       this.todoForm.patchValue({
         title: this.todo.title,
         description: this.todo.description || '',
-        dueDate: this.todo.dueDate ? this.formatDateForInput(this.todo.dueDate) : '',
       });
     }
   }
@@ -106,7 +97,6 @@ export class TodoFormComponent implements OnInit {
       const payload = {
         title: formValue.title!,
         description: formValue.description || undefined,
-        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
       };
       this.submit.emit(payload);
     }
@@ -114,15 +104,5 @@ export class TodoFormComponent implements OnInit {
 
   onCancel() {
     this.cancel.emit();
-  }
-
-  private formatDateForInput(dateString: string): string {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 }

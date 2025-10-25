@@ -5,14 +5,15 @@ import { TodoService } from '../../services/todo.service';
 import { CreateTodoDto } from '../../models/todo.model';
 import { TodoFormComponent } from '../../components/todo-form/todo-form.component';
 import { ErrorMessageComponent } from '../../../../shared/components/error-message/error-message.component';
+import { CardComponent, CardContentComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-todo-create-page',
   standalone: true,
-  imports: [CommonModule, TodoFormComponent, ErrorMessageComponent],
+  imports: [CommonModule, TodoFormComponent, ErrorMessageComponent, CardComponent, CardContentComponent],
   template: `
-    <div class="container mx-auto max-w-2xl p-6">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">Create New Todo</h1>
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6" style="color: var(--color-text-primary)">Create New Todo</h1>
 
       @if (error()) {
         <div class="mb-6">
@@ -20,14 +21,16 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
         </div>
       }
 
-      <div class="bg-white border border-gray-200 rounded-lg p-6">
-        <app-todo-form
-          [submitting]="submitting()"
-          submitLabel="Create Todo"
-          (submit)="onCreate($event)"
-          (cancel)="onCancel()">
-        </app-todo-form>
-      </div>
+      <app-card>
+        <app-card-content>
+          <app-todo-form
+            [submitting]="submitting()"
+            submitLabel="Create Todo"
+            (submit)="onCreate($event)"
+            (cancel)="onCancel()">
+          </app-todo-form>
+        </app-card-content>
+      </app-card>
     </div>
   `,
 })

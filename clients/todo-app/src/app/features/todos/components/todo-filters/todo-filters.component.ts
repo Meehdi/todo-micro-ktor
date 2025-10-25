@@ -1,21 +1,19 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TodoFilter } from '../../models/todo.model';
+import { ButtonDirective } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-todo-filters',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonDirective],
   template: `
     <div class="flex gap-2 mb-4">
       <button
         *ngFor="let filter of filters"
-        (click)="onFilterChange(filter.value)"
-        [class.bg-blue-600]="activeFilter === filter.value"
-        [class.text-white]="activeFilter === filter.value"
-        [class.bg-gray-200]="activeFilter !== filter.value"
-        [class.text-gray-700]="activeFilter !== filter.value"
-        class="px-4 py-2 rounded-lg font-medium transition-colors hover:opacity-80">
+        appButton
+        [variant]="activeFilter === filter.value ? 'default' : 'outline'"
+        (click)="onFilterChange(filter.value)">
         {{ filter.label }}
       </button>
     </div>

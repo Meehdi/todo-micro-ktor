@@ -2,55 +2,58 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Todo } from '../../models/todo.model';
+import { BadgeDirective, ButtonDirective, CheckboxDirective, CardComponent } from '../../../../shared/ui';
+import { LucideAngularModule, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-todo-list-item',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, BadgeDirective, ButtonDirective, CheckboxDirective, CardComponent, LucideAngularModule],
   template: `
-    <div
-      class="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-      <input
-        type="checkbox"
-        [checked]="todo.completed"
-        (change)="onToggleComplete()"
-        class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+    <app-card class="hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-4 p-4">
+        <input
+          type="checkbox"
+          appCheckbox
+          [checked]="todo.completed"
+          (change)="onToggleComplete()" />
 
-      <div class="flex-1 cursor-pointer" [routerLink]="['/todos', todo.id]">
-        <h3
-          [class.line-through]="todo.completed"
-          [class.text-gray-400]="todo.completed"
-          class="font-medium text-gray-900">
-          {{ todo.title }}
-        </h3>
-        <p *ngIf="todo.description" class="text-sm text-gray-600 mt-1">
-          {{ todo.description }}
-        </p>
-        <div class="flex gap-2 mt-2">
-          <span
-            *ngIf="todo.dueDate"
-            [class.text-red-600]="isOverdue()"
-            class="text-xs text-gray-500">
-            Due: {{ formatDate(todo.dueDate) }}
-          </span>
-          <span *ngIf="todo.completed" class="text-xs text-green-600 font-medium">
-            Completed
-          </span>
+        <div class="flex-1 cursor-pointer" [routerLink]="['/todos', todo.id]">
+          <div class="flex items-center gap-2">
+            <h3
+              [class.line-through]="todo.completed"
+              [class.text-gray-400]="todo.completed"
+              class="font-medium text-gray-900">
+              {{ todo.title }}
+            </h3>
+            @if (todo.completed) {
+              <span appBadge variant="success">Completed</span>
+            }
+          </div>
+          <p *ngIf="todo.description" class="text-sm text-gray-600 mt-1">
+            {{ todo.description }}
+          </p>
+          @if (todo.dueDate) {
+            <span appBadge [variant]="isOverdue() ? 'destructive' : 'secondary'" class="mt-2">
+              Due: {{ formatDate(todo.dueDate) }}
+            </span>
+          }
         </div>
-      </div>
 
-      <button
-        (click)="onDelete()"
-        class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors">
-        Delete
-      </button>
-    </div>
+        <button appButton variant="destructive" size="sm" (click)="onDelete()" class="gap-1">
+          <lucide-icon [img]="Trash2" [size]="16" [strokeWidth]="2"></lucide-icon>
+          Delete
+        </button>
+      </div>
+    </app-card>
   `,
 })
 export class TodoListItemComponent {
   @Input({ required: true }) todo!: Todo;
   @Output() complete = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
+
+  readonly Trash2 = Trash2;
 
   onToggleComplete() {
     this.complete.emit();

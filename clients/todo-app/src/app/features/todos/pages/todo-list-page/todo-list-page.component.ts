@@ -1,33 +1,38 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { TodoService } from '../../services/todo.service';
-import { Todo, TodoFilter } from '../../models/todo.model';
+import { Todo, TodoFilter, CreateTodoDto } from '../../models/todo.model';
 import { TodoListComponent } from '../../components/todo-list/todo-list.component';
 import { TodoFiltersComponent } from '../../components/todo-filters/todo-filters.component';
 import { TodoSearchComponent } from '../../components/todo-search/todo-search.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { ErrorMessageComponent } from '../../../../shared/components/error-message/error-message.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { TodoFormDialogComponent } from '../../components/todo-form-dialog/todo-form-dialog.component';
+import { ButtonDirective } from '../../../../shared/ui';
+import { LucideAngularModule, Plus } from 'lucide-angular';
 
 @Component({
   selector: 'app-todo-list-page',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     TodoListComponent,
     TodoFiltersComponent,
     TodoSearchComponent,
     LoadingSpinnerComponent,
     ErrorMessageComponent,
+    ConfirmDialogComponent,
+    TodoFormDialogComponent,
+    ButtonDirective,
+    LucideAngularModule,
   ],
   template: `
-    <div class="container mx-auto max-w-4xl p-6">
+    <div class="max-w-6xl mx-auto">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">My Todos</h1>
-        <button
-          routerLink="/todos/new"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)">My Todos</h1>
+        <button (click)="openCreateDialog()" appButton class="gap-1">
+          <lucide-icon [img]="Plus" [size]="18" [strokeWidth]="2"></lucide-icon>
           New Todo
         </button>
       </div>
@@ -47,9 +52,25 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
         <app-todo-list
           [todos]="filteredTodos()"
           (complete)="onComplete($event)"
-          (delete)="onDelete($event)">
+          (delete)="openDeleteDialog($event)">
         </app-todo-list>
       }
+
+      <app-todo-form-dialog
+        [open]="showCreateDialog()"
+        [submitting]="creatingTodo()"
+        (openChange)="showCreateDialog.set($event)"
+        (create)="onCreate($event)">
+      </app-todo-form-dialog>
+
+      <app-confirm-dialog
+        [open]="showDeleteDialog()"
+        (openChange)="showDeleteDialog.set($event)"
+        title="Delete Todo"
+        description="Are you sure you want to delete this todo? This action cannot be undone."
+        confirmLabel="Delete"
+        (confirm)="confirmDelete()">
+      </app-confirm-dialog>
     </div>
   `,
 })
@@ -61,6 +82,12 @@ export class TodoListPageComponent implements OnInit {
   error = signal<string | null>(null);
   activeFilter = signal<TodoFilter>('all');
   searchTerm = signal('');
+  showDeleteDialog = signal(false);
+  todoToDelete = signal<string | null>(null);
+  showCreateDialog = signal(false);
+  creatingTodo = signal(false);
+
+  readonly Plus = Plus;
 
   filteredTodos = computed(() => {
     const todos = this.todos();
@@ -121,16 +148,44 @@ export class TodoListPageComponent implements OnInit {
     });
   }
 
-  onDelete(id: string) {
-    if (confirm('Are you sure you want to delete this todo?')) {
-      this.todoService.deleteTodo(id).subscribe({
-        next: () => {
-          this.todos.update(todos => todos.filter(todo => todo.id !== id));
-        },
-        error: err => {
-          this.error.set(err.message || 'Failed to delete todo');
-        },
-      });
-    }
+  openDeleteDialog(id: string) {
+    this.todoToDelete.set(id);
+    this.showDeleteDialog.set(true);
+  }
+
+  confirmDelete() {
+    const id = this.todoToDelete();
+    if (!id) return;
+
+    this.todoService.deleteTodo(id).subscribe({
+      next: () => {
+        this.todos.update(todos => todos.filter(todo => todo.id !== id));
+        this.todoToDelete.set(null);
+      },
+      error: err => {
+        this.error.set(err.message || 'Failed to delete todo');
+      },
+    });
+  }
+
+  openCreateDialog() {
+    this.showCreateDialog.set(true);
+  }
+
+  onCreate(todoData: CreateTodoDto) {
+    this.creatingTodo.set(true);
+    this.error.set(null);
+
+    this.todoService.createTodo(todoData).subscribe({
+      next: newTodo => {
+        this.todos.update(todos => [newTodo, ...todos]);
+        this.showCreateDialog.set(false);
+        this.creatingTodo.set(false);
+      },
+      error: err => {
+        this.error.set(err.message || 'Failed to create todo');
+        this.creatingTodo.set(false);
+      },
+    });
   }
 }
