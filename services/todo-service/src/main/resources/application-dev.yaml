@@ -1,0 +1,11 @@
+ktor:
+  deployment:
+    port: 8080
+
+mongodb:
+  uri: "mongodb://localhost:27017"
+  database: "todo_db_dev"
+
+kafka:
+  bootstrap-servers: "localhost:9092"
+  topic: "todo-events-dev"
