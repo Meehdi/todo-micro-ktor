@@ -10,7 +10,7 @@ class UpdateTodoUseCase(
     private val repository: TodoRepository,
     private val eventPublisher: EventPublisher
 ) {
-    suspend fun execute(id: String, title: String?, description: String?): Todo? {
+    suspend fun execute(id: String, title: String?, description: String?, userId: String): Todo? {
         val objectId = try {
             ObjectId(id)
         } catch (e: IllegalArgumentException) {
@@ -25,6 +25,7 @@ class UpdateTodoUseCase(
         eventPublisher.publish(
             TodoUpdated(
                 todoId = savedTodo.id.toHexString(),
+                userId = userId,
                 title = savedTodo.title,
                 description = savedTodo.description
             )

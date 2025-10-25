@@ -9,7 +9,7 @@ class DeleteTodoUseCase(
     private val repository: TodoRepository,
     private val eventPublisher: EventPublisher
 ) {
-    suspend fun execute(id: String): Boolean {
+    suspend fun execute(id: String, userId: String): Boolean {
         val objectId = try {
             ObjectId(id)
         } catch (e: IllegalArgumentException) {
@@ -21,7 +21,8 @@ class DeleteTodoUseCase(
         if (deleted) {
             eventPublisher.publish(
                 TodoDeleted(
-                    todoId = id
+                    todoId = id,
+                    userId = userId
                 )
             )
         }

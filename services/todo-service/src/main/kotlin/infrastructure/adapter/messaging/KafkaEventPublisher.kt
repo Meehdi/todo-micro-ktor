@@ -3,6 +3,9 @@ package com.meehdi.infrastructure.adapter.messaging
 import com.meehdi.domain.event.*
 import com.meehdi.domain.port.EventPublisher
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
@@ -13,6 +16,18 @@ class KafkaEventPublisher(
 
     private val logger = LoggerFactory.getLogger(KafkaEventPublisher::class.java)
 
+    private val json = Json {
+        serializersModule = SerializersModule {
+            polymorphic(TodoEvent::class) {
+                subclass(TodoCreated::class)
+                subclass(TodoUpdated::class)
+                subclass(TodoCompleted::class)
+                subclass(TodoDeleted::class)
+            }
+        }
+        classDiscriminator = "type"
+    }
+
     override suspend fun publish(event: TodoEvent) {
         val topic = when (event) {
             is TodoCreated -> "todo.created"
@@ -21,7 +36,7 @@ class KafkaEventPublisher(
             is TodoDeleted -> "todo.deleted"
         }
 
-        val message = Json.encodeToString(event)
+        val message = json.encodeToString(TodoEvent.serializer(), event)
         val record = ProducerRecord(topic, event.todoId, message)
 
         try {

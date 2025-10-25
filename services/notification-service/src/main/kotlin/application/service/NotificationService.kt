@@ -1,6 +1,6 @@
 package com.meehdi.application.service
 
-import com.meehdi.domain.event.TodoEvent
+import com.meehdi.domain.event.*
 import com.meehdi.domain.model.Notification
 import com.meehdi.domain.model.NotificationType
 import com.meehdi.domain.port.NotificationRepository
@@ -13,10 +13,8 @@ class NotificationService(
     suspend fun processEvent(event: TodoEvent) {
         val notification = createNotificationFromEvent(event)
 
-        // Save notification
         repository.save(notification)
 
-        // Send email notification
         emailSender.send(notification)
     }
 
@@ -29,28 +27,37 @@ class NotificationService(
     }
 
     private fun createNotificationFromEvent(event: TodoEvent): Notification {
-        val type = when (event.eventType) {
-            "TODO_CREATED" -> NotificationType.TODO_CREATED
-            "TODO_UPDATED" -> NotificationType.TODO_UPDATED
-            "TODO_COMPLETED" -> NotificationType.TODO_COMPLETED
-            "TODO_DELETED" -> NotificationType.TODO_DELETED
-            else -> NotificationType.EMAIL
+        return when (event) {
+            is TodoCreated -> Notification(
+                userId = event.userId,
+                type = NotificationType.TODO_CREATED,
+                title = "Todo created",
+                message = "New todo created: ${event.title}",
+                todoId = event.todoId
+            )
+            is TodoUpdated -> Notification(
+                userId = event.userId,
+                type = NotificationType.TODO_UPDATED,
+                title = "Todo updated",
+                message = "Todo updated: ${event.title}",
+                todoId = event.todoId
+            )
+            is TodoCompleted -> Notification(
+                userId = event.userId,
+                type = NotificationType.TODO_COMPLETED,
+                title = "Todo completed",
+                message = "Todo completed: ${event.todoId}",
+                todoId = event.todoId
+            )
+            is TodoDeleted -> Notification(
+                userId = event.userId,
+                type = NotificationType.TODO_DELETED,
+                title = "Todo deleted",
+                message = "Todo deleted: ${event.todoId}",
+                todoId = event.todoId
+            )
         }
-
-        val message = when (event.eventType) {
-            "TODO_CREATED" -> "New todo created: ${event.title}"
-            "TODO_UPDATED" -> "Todo updated: ${event.title}"
-            "TODO_COMPLETED" -> "Todo completed: ${event.title}"
-            "TODO_DELETED" -> "Todo deleted: ${event.title}"
-            else -> "Todo event: ${event.title}"
-        }
-
-        return Notification(
-            userId = event.userId,
-            type = type,
-            title = "Todo ${event.eventType.lowercase().replace("_", " ")}",
-            message = message,
-            todoId = event.todoId
-        )
     }
+
+    private data class Tuple4<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 }

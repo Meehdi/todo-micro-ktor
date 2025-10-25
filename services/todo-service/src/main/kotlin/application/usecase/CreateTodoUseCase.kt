@@ -9,7 +9,7 @@ class CreateTodoUseCase(
     private val repository: TodoRepository,
     private val eventPublisher: EventPublisher
 ) {
-    suspend fun execute(title: String, description: String?): Todo {
+    suspend fun execute(title: String, description: String?, userId: String): Todo {
         val todo = Todo(
             title = title,
             description = description
@@ -20,6 +20,7 @@ class CreateTodoUseCase(
         eventPublisher.publish(
             TodoCreated(
                 todoId = savedTodo.id.toHexString(),
+                userId = userId,
                 title = savedTodo.title,
                 description = savedTodo.description
             )

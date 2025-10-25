@@ -12,8 +12,8 @@ POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
-  "title": "Learn Ktor",
-  "description": "Build microservices with Ktor framework"
+  "title": "Learn Go",
+  "description": "Build microservices with Go"
 }
 
 ### 2. Create Todo - Without Description

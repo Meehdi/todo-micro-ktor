@@ -20,7 +20,6 @@ fun Route.todoRoutes(
 ) {
     route("/todos") {
 
-        // Create todo
         post {
             val request = call.receive<CreateTodoRequest>()
 
@@ -29,17 +28,16 @@ fun Route.todoRoutes(
                 return@post
             }
 
-            val todo = createTodoUseCase.execute(request.title, request.description)
+            val userId = "default-user"
+            val todo = createTodoUseCase.execute(request.title, request.description, userId)
             call.respond(HttpStatusCode.Created, TodoMapper.toResponse(todo))
         }
 
-        // Get all todos
         get {
             val todos = getAllTodosUseCase.execute()
             call.respond(todos.map { TodoMapper.toResponse(it) })
         }
 
-        // Get todo by id
         get("/{id}") {
             val id = call.parameters["id"] ?: run {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing id parameter"))
@@ -54,7 +52,6 @@ fun Route.todoRoutes(
             }
         }
 
-        // Update todo
         put("/{id}") {
             val id = call.parameters["id"] ?: run {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing id parameter"))
@@ -62,8 +59,9 @@ fun Route.todoRoutes(
             }
 
             val request = call.receive<UpdateTodoRequest>()
+            val userId = "default-user"
 
-            val todo = updateTodoUseCase.execute(id, request.title, request.description)
+            val todo = updateTodoUseCase.execute(id, request.title, request.description, userId)
             if (todo != null) {
                 call.respond(TodoMapper.toResponse(todo))
             } else {
@@ -71,14 +69,14 @@ fun Route.todoRoutes(
             }
         }
 
-        // Complete todo
         patch("/{id}/complete") {
             val id = call.parameters["id"] ?: run {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing id parameter"))
                 return@patch
             }
 
-            val todo = completeTodoUseCase.execute(id)
+            val userId = "default-user"
+            val todo = completeTodoUseCase.execute(id, userId)
             if (todo != null) {
                 call.respond(TodoMapper.toResponse(todo))
             } else {
@@ -86,14 +84,14 @@ fun Route.todoRoutes(
             }
         }
 
-        // Delete todo
         delete("/{id}") {
             val id = call.parameters["id"] ?: run {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse("Missing id parameter"))
                 return@delete
             }
 
-            val deleted = deleteTodoUseCase.execute(id)
+            val userId = "default-user"
+            val deleted = deleteTodoUseCase.execute(id, userId)
             if (deleted) {
                 call.respond(HttpStatusCode.NoContent)
             } else {

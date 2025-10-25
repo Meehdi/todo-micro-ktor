@@ -1,5 +1,5 @@
 # Build stage
-FROM gradle:9.1-jdk25 AS build
+FROM gradle:9.1-jdk24 AS build
 WORKDIR /app
 
 # Copy gradle files first for better caching
@@ -16,7 +16,7 @@ COPY src ./src
 RUN gradle buildFatJar --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:24-jre-alpine
 WORKDIR /app
 
 # Create non-root user
@@ -31,8 +31,8 @@ RUN chown -R appuser:appgroup /app
 # Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 8081
+# Expose port (8080 for todo-service, 8081 for notification-service)
+EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
