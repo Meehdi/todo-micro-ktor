@@ -1,0 +1,78 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "back": "Retour",
+    "confirm": "Confirmer",
+    "loading": "Chargement...",
+    "search": "Rechercher...",
+    "all": "Tous",
+    "active": "Actifs",
+    "completed": "Terminés"
+  },
+  "layout": {
+    "appName": "Application de Tâches",
+    "appNameShort": "TodoApp",
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "allTodos": "Toutes les tâches",
+      "archived": "Archivées"
+    }
+  },
+  "todo": {
+    "title": "Titre",
+    "description": "Description",
+    "dueDate": "Date d'échéance",
+    "status": "Statut",
+    "createdAt": "Créé le",
+    "updatedAt": "Modifié le",
+    "myTodos": "Mes Tâches",
+    "newTodo": "Nouvelle Tâche",
+    "createTodo": "Créer une Tâche",
+    "editTodo": "Modifier la Tâche",
+    "deleteTodo": "Supprimer la Tâche",
+    "completeTodo": "Terminer",
+    "markComplete": "Marquer comme terminé",
+    "markIncomplete": "Marquer comme non terminé",
+    "noTodos": "Aucune tâche pour le moment",
+    "noTodosDescription": "Commencez par créer votre première tâche",
+    "createYourFirst": "Créez votre première tâche",
+    "overdue": "En retard",
+    "success": "Succès"
+  },
+  "form": {
+    "titleRequired": "Le titre est requis",
+    "titleMinLength": "Le titre doit contenir au moins 3 caractères",
+    "titlePlaceholder": "Entrez le titre de la tâche",
+    "descriptionPlaceholder": "Entrez la description de la tâche",
+    "descriptionLabel": "Description",
+    "titleLabel": "Titre"
+  },
+  "dialog": {
+    "createTodo": {
+      "title": "Créer une Nouvelle Tâche",
+      "description": "Ajoutez une nouvelle tâche à votre liste. Remplissez les détails ci-dessous."
+    },
+    "deleteTodo": {
+      "title": "Supprimer la Tâche",
+      "description": "Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "errors": {
+    "failedToLoad": "Échec du chargement des tâches",
+    "failedToCreate": "Échec de la création de la tâche",
+    "failedToUpdate": "Échec de la mise à jour de la tâche",
+    "failedToDelete": "Échec de la suppression de la tâche",
+    "somethingWentWrong": "Une erreur s'est produite"
+  },
+  "filters": {
+    "all": "Tous",
+    "active": "Actifs",
+    "completed": "Terminés"
+  }
+}

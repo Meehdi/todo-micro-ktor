@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { TodoFormComponent } from '../todo-form/todo-form.component';
 import { CreateTodoDto } from '../../models/todo.model';
 import {
@@ -14,6 +15,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     TodoFormComponent,
     DialogComponent,
     DialogHeaderComponent,
@@ -23,16 +25,16 @@ import {
   template: `
     <app-dialog [open]="open" (openChange)="openChange.emit($event)">
       <app-dialog-header>
-        <app-dialog-title>Create New Todo</app-dialog-title>
+        <app-dialog-title>{{ 'dialog.createTodo.title' | translate }}</app-dialog-title>
         <app-dialog-description>
-          Add a new task to your todo list. Fill in the details below.
+          {{ 'dialog.createTodo.description' | translate }}
         </app-dialog-description>
       </app-dialog-header>
 
       <div class="mt-4">
         <app-todo-form
           [submitting]="submitting"
-          submitLabel="Create Todo"
+          [submitLabel]="'todo.createTodo' | translate"
           (submit)="onCreate($event)"
           (cancel)="onCancel()">
         </app-todo-form>

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { Todo } from '../../models/todo.model';
 import { BadgeDirective, ButtonDirective, CheckboxDirective, CardComponent } from '../../../../shared/ui';
 import { LucideAngularModule, Trash2 } from 'lucide-angular';
@@ -8,7 +9,7 @@ import { LucideAngularModule, Trash2 } from 'lucide-angular';
 @Component({
   selector: 'app-todo-list-item',
   standalone: true,
-  imports: [CommonModule, RouterLink, BadgeDirective, ButtonDirective, CheckboxDirective, CardComponent, LucideAngularModule],
+  imports: [CommonModule, RouterLink, TranslateModule, BadgeDirective, ButtonDirective, CheckboxDirective, CardComponent, LucideAngularModule],
   template: `
     <app-card class="hover:shadow-md transition-shadow">
       <div class="flex items-center gap-4 p-4">
@@ -27,7 +28,7 @@ import { LucideAngularModule, Trash2 } from 'lucide-angular';
               {{ todo.title }}
             </h3>
             @if (todo.completed) {
-              <span appBadge variant="success">Completed</span>
+              <span appBadge variant="success">{{ 'common.completed' | translate }}</span>
             }
           </div>
           <p *ngIf="todo.description" class="text-sm text-gray-600 mt-1">
@@ -42,7 +43,7 @@ import { LucideAngularModule, Trash2 } from 'lucide-angular';
 
         <button appButton variant="destructive" size="sm" (click)="onDelete()" class="gap-1">
           <lucide-icon [img]="Trash2" [size]="16" [strokeWidth]="2"></lucide-icon>
-          Delete
+          {{ 'common.delete' | translate }}
         </button>
       </div>
     </app-card>

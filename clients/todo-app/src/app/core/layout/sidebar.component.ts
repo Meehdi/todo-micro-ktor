@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'lucide-angular';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule, TranslateModule],
   template: `
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <lucide-icon [img]="CheckSquare" [size]="24" [strokeWidth]="2" class="logo-icon"></lucide-icon>
-          <span class="logo-text">TodoApp</span>
+          <span class="logo-text">{{ 'layout.appNameShort' | translate }}</span>
         </div>
       </div>
 
@@ -23,7 +24,7 @@ import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'luci
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item">
           <lucide-icon [img]="LayoutDashboard" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>Dashboard</span>
+          <span>{{ 'layout.sidebar.dashboard' | translate }}</span>
         </a>
 
         <a
@@ -31,14 +32,14 @@ import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'luci
           routerLinkActive="active"
           class="nav-item">
           <lucide-icon [img]="CheckSquare" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>All Todos</span>
+          <span>{{ 'layout.sidebar.allTodos' | translate }}</span>
         </a>
 
         <div class="nav-divider"></div>
 
         <a href="#" class="nav-item">
           <lucide-icon [img]="Archive" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>Archived</span>
+          <span>{{ 'layout.sidebar.archived' | translate }}</span>
         </a>
       </nav>
     </aside>

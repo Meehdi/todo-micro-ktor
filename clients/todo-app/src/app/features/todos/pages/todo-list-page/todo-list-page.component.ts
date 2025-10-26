@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TodoService } from '../../services/todo.service';
 import { Todo, TodoFilter, CreateTodoDto } from '../../models/todo.model';
 import { TodoListComponent } from '../../components/todo-list/todo-list.component';
@@ -17,6 +18,7 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     TodoListComponent,
     TodoFiltersComponent,
     TodoSearchComponent,
@@ -30,10 +32,10 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
   template: `
     <div class="max-w-6xl mx-auto">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)">My Todos</h1>
+        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ 'todo.myTodos' | translate }}</h1>
         <button (click)="openCreateDialog()" appButton class="gap-1">
           <lucide-icon [img]="Plus" [size]="18" [strokeWidth]="2"></lucide-icon>
-          New Todo
+          {{ 'todo.newTodo' | translate }}
         </button>
       </div>
 
@@ -66,9 +68,9 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
       <app-confirm-dialog
         [open]="showDeleteDialog()"
         (openChange)="showDeleteDialog.set($event)"
-        title="Delete Todo"
-        description="Are you sure you want to delete this todo? This action cannot be undone."
-        confirmLabel="Delete"
+        [title]="'dialog.deleteTodo.title' | translate"
+        [description]="'dialog.deleteTodo.description' | translate"
+        [confirmLabel]="'dialog.deleteTodo.confirm' | translate"
         (confirm)="confirmDelete()">
       </app-confirm-dialog>
     </div>
@@ -76,6 +78,7 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
 })
 export class TodoListPageComponent implements OnInit {
   private todoService = inject(TodoService);
+  private translateService = inject(TranslateService);
 
   todos = signal<Todo[]>([]);
   loading = signal(true);
@@ -121,7 +124,7 @@ export class TodoListPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.message || 'Failed to load todos');
+        this.error.set(err.message || this.translateService.instant('errors.failedToLoad'));
         this.loading.set(false);
       },
     });
@@ -143,7 +146,7 @@ export class TodoListPageComponent implements OnInit {
         );
       },
       error: err => {
-        this.error.set(err.message || 'Failed to update todo');
+        this.error.set(err.message || this.translateService.instant('errors.failedToUpdate'));
       },
     });
   }
@@ -163,7 +166,7 @@ export class TodoListPageComponent implements OnInit {
         this.todoToDelete.set(null);
       },
       error: err => {
-        this.error.set(err.message || 'Failed to delete todo');
+        this.error.set(err.message || this.translateService.instant('errors.failedToDelete'));
       },
     });
   }
@@ -183,7 +186,7 @@ export class TodoListPageComponent implements OnInit {
         this.creatingTodo.set(false);
       },
       error: err => {
-        this.error.set(err.message || 'Failed to create todo');
+        this.error.set(err.message || this.translateService.instant('errors.failedToCreate'));
         this.creatingTodo.set(false);
       },
     });

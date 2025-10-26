@@ -21,7 +21,7 @@ class MongoTodoRepository(
     }
 
     override suspend fun findById(id: ObjectId): Todo? {
-        return collection.find(Filters.eq("_id", id)).firstOrNull()
+        return collection.find(Filters.eq("id", id)).firstOrNull()
     }
 
     override suspend fun findAll(): List<Todo> {
@@ -30,7 +30,7 @@ class MongoTodoRepository(
 
     override suspend fun update(todo: Todo): Todo? {
         val result = collection.replaceOne(
-            Filters.eq("_id", todo.id),
+            Filters.eq("id", todo.id),
             todo,
             ReplaceOptions().upsert(false)
         )
@@ -39,7 +39,7 @@ class MongoTodoRepository(
     }
 
     override suspend fun deleteById(id: ObjectId): Boolean {
-        val result = collection.deleteOne(Filters.eq("_id", id))
+        val result = collection.deleteOne(Filters.eq("id", id))
         return result.deletedCount > 0
     }
 }
