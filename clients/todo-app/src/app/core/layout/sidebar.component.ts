@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'lucide-angular';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
   template: `
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <lucide-icon [img]="CheckSquare" [size]="24" [strokeWidth]="2" class="logo-icon"></lucide-icon>
-          <span class="logo-text">{{ 'layout.appNameShort' | translate }}</span>
+          <span class="logo-text" i18n="@@layout.appNameShort">TodoApp</span>
         </div>
       </div>
 
@@ -24,7 +23,7 @@ import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'luci
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item">
           <lucide-icon [img]="LayoutDashboard" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>{{ 'layout.sidebar.dashboard' | translate }}</span>
+          <span i18n="@@layout.sidebar.dashboard">Dashboard</span>
         </a>
 
         <a
@@ -32,14 +31,14 @@ import { LucideAngularModule, LayoutDashboard, CheckSquare, Archive } from 'luci
           routerLinkActive="active"
           class="nav-item">
           <lucide-icon [img]="CheckSquare" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>{{ 'layout.sidebar.allTodos' | translate }}</span>
+          <span i18n="@@layout.sidebar.allTodos">All Todos</span>
         </a>
 
         <div class="nav-divider"></div>
 
         <a href="#" class="nav-item">
           <lucide-icon [img]="Archive" [size]="20" [strokeWidth]="2"></lucide-icon>
-          <span>{{ 'layout.sidebar.archived' | translate }}</span>
+          <span i18n="@@layout.sidebar.archived">Archived</span>
         </a>
       </nav>
     </aside>

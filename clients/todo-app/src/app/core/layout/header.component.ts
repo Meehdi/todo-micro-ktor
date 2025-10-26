@@ -1,26 +1,25 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Bell, User } from 'lucide-angular';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, LanguageSelectorComponent],
+  imports: [CommonModule, LucideAngularModule, LanguageSelectorComponent],
   template: `
     <header class="header">
       <div class="header-content">
         <div class="header-left">
-          <h1 class="header-title">{{ 'layout.appName' | translate }}</h1>
+          <h1 class="header-title" i18n="@@layout.appName">Todo Application</h1>
         </div>
 
         <div class="header-right">
           <app-language-selector></app-language-selector>
-          <button class="header-icon-btn" title="Notifications">
+          <button class="header-icon-btn" title="Notifications" i18n-title="@@notifications">
             <lucide-icon [img]="Bell" [size]="20" [strokeWidth]="2"></lucide-icon>
           </button>
-          <button class="header-icon-btn" title="Profile">
+          <button class="header-icon-btn" title="Profile" i18n-title="@@profile">
             <lucide-icon [img]="User" [size]="20" [strokeWidth]="2"></lucide-icon>
           </button>
         </div>

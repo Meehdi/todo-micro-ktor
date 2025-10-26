@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { Todo } from '../../models/todo.model';
 import { TodoListItemComponent } from '../todo-list-item/todo-list-item.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
@@ -8,13 +7,15 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
 @Component({
   selector: 'app-todo-list',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TodoListItemComponent, EmptyStateComponent],
+  imports: [CommonModule, TodoListItemComponent, EmptyStateComponent],
   template: `
     <div class="space-y-3">
       @if (todos.length === 0) {
         <app-empty-state
-          [title]="'todo.noTodos' | translate"
-          [message]="'todo.noTodosDescription' | translate">
+          title="No todos yet"
+          i18n-title="@@todo.noTodos"
+          message="Get started by creating your first todo"
+          i18n-message="@@todo.noTodosDescription">
         </app-empty-state>
       } @else {
         @for (todo of todos; track todo.id) {

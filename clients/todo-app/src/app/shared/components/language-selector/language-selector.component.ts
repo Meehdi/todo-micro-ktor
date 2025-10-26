@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, LOCALE_ID, inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-language-selector',
@@ -10,16 +9,18 @@ import { TranslateService } from '@ngx-translate/core';
     <div class="language-selector">
       <button
         (click)="changeLanguage('en')"
-        [class.active]="currentLang === 'en'"
+        [class.active]="currentLang === 'en' || currentLang === 'en-US'"
         class="lang-button"
-        title="English">
+        title="English"
+        i18n-title="@@language.english">
         <span class="flag">🇺🇸</span>
       </button>
       <button
         (click)="changeLanguage('fr')"
         [class.active]="currentLang === 'fr'"
         class="lang-button"
-        title="Français">
+        title="Français"
+        i18n-title="@@language.french">
         <span class="flag">🇫🇷</span>
       </button>
     </div>
@@ -68,14 +69,20 @@ import { TranslateService } from '@ngx-translate/core';
   `]
 })
 export class LanguageSelectorComponent {
-  private translate = inject(TranslateService);
-
-  get currentLang(): string {
-    return this.translate.currentLang || this.translate.defaultLang || 'en';
-  }
+  private document = inject(DOCUMENT);
+  currentLang = inject(LOCALE_ID);
 
   changeLanguage(lang: string) {
-    this.translate.use(lang);
+    // Store the selected language
     localStorage.setItem('selectedLanguage', lang);
+
+    // Get the current path
+    const currentPath = this.document.location.pathname;
+
+    // Reload with the new locale path
+    // For runtime locale switching with built-in i18n, we need to reload the page
+    // The actual implementation depends on your deployment strategy
+    // For now, just reload the page and let the app initialization handle locale detection
+    this.document.location.reload();
   }
 }

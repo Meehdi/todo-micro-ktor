@@ -1,6 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TodoService } from '../../services/todo.service';
 import { Todo, TodoFilter, CreateTodoDto } from '../../models/todo.model';
 import { TodoListComponent } from '../../components/todo-list/todo-list.component';
@@ -18,7 +17,6 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
     TodoListComponent,
     TodoFiltersComponent,
     TodoSearchComponent,
@@ -32,10 +30,10 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
   template: `
     <div class="max-w-6xl mx-auto">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ 'todo.myTodos' | translate }}</h1>
+        <h1 class="text-3xl font-bold" style="color: var(--color-text-primary)" i18n="@@todo.myTodos">My Todos</h1>
         <button (click)="openCreateDialog()" appButton class="gap-1">
           <lucide-icon [img]="Plus" [size]="18" [strokeWidth]="2"></lucide-icon>
-          {{ 'todo.newTodo' | translate }}
+          <span i18n="@@todo.newTodo">New Todo</span>
         </button>
       </div>
 
@@ -68,9 +66,9 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
       <app-confirm-dialog
         [open]="showDeleteDialog()"
         (openChange)="showDeleteDialog.set($event)"
-        [title]="'dialog.deleteTodo.title' | translate"
-        [description]="'dialog.deleteTodo.description' | translate"
-        [confirmLabel]="'dialog.deleteTodo.confirm' | translate"
+        [title]="deleteDialogTitle"
+        [description]="deleteDialogDescription"
+        [confirmLabel]="deleteDialogConfirm"
         (confirm)="confirmDelete()">
       </app-confirm-dialog>
     </div>
@@ -78,7 +76,6 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
 })
 export class TodoListPageComponent implements OnInit {
   private todoService = inject(TodoService);
-  private translateService = inject(TranslateService);
 
   todos = signal<Todo[]>([]);
   loading = signal(true);
@@ -91,6 +88,9 @@ export class TodoListPageComponent implements OnInit {
   creatingTodo = signal(false);
 
   readonly Plus = Plus;
+  readonly deleteDialogTitle = $localize`:@@dialog.deleteTodo.title:Delete Todo`;
+  readonly deleteDialogDescription = $localize`:@@dialog.deleteTodo.description:Are you sure you want to delete this todo? This action cannot be undone.`;
+  readonly deleteDialogConfirm = $localize`:@@dialog.deleteTodo.confirm:Delete`;
 
   filteredTodos = computed(() => {
     const todos = this.todos();
@@ -124,7 +124,7 @@ export class TodoListPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.message || this.translateService.instant('errors.failedToLoad'));
+        this.error.set(err.message || $localize`:@@errors.failedToLoad:Failed to load todos`);
         this.loading.set(false);
       },
     });
@@ -146,7 +146,7 @@ export class TodoListPageComponent implements OnInit {
         );
       },
       error: err => {
-        this.error.set(err.message || this.translateService.instant('errors.failedToUpdate'));
+        this.error.set(err.message || $localize`:@@errors.failedToUpdate:Failed to update todo`);
       },
     });
   }
@@ -166,7 +166,7 @@ export class TodoListPageComponent implements OnInit {
         this.todoToDelete.set(null);
       },
       error: err => {
-        this.error.set(err.message || this.translateService.instant('errors.failedToDelete'));
+        this.error.set(err.message || $localize`:@@errors.failedToDelete:Failed to delete todo`);
       },
     });
   }
@@ -186,7 +186,7 @@ export class TodoListPageComponent implements OnInit {
         this.creatingTodo.set(false);
       },
       error: err => {
-        this.error.set(err.message || this.translateService.instant('errors.failedToCreate'));
+        this.error.set(err.message || $localize`:@@errors.failedToCreate:Failed to create todo`);
         this.creatingTodo.set(false);
       },
     });

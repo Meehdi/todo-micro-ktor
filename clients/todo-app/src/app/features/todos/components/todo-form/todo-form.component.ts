@@ -1,19 +1,18 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import { Todo } from '../../models/todo.model';
 import { ButtonDirective, InputDirective, TextareaDirective, LabelDirective } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-todo-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ButtonDirective, InputDirective, TextareaDirective, LabelDirective],
+  imports: [CommonModule, ReactiveFormsModule, ButtonDirective, InputDirective, TextareaDirective, LabelDirective],
   template: `
     <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="space-y-6">
       <div>
-        <label for="title" appLabel class="mb-1 block">
-          {{ 'form.titleLabel' | translate }} *
+        <label for="title" appLabel class="mb-1 block" i18n="@@form.titleLabel">
+          Title *
         </label>
         <input
           id="title"
@@ -21,29 +20,31 @@ import { ButtonDirective, InputDirective, TextareaDirective, LabelDirective } fr
           formControlName="title"
           appInput
           [class.border-red-500]="title?.invalid && title?.touched"
-          [placeholder]="'form.titlePlaceholder' | translate" />
+          placeholder="Enter todo title"
+          i18n-placeholder="@@form.titlePlaceholder" />
         @if (title?.invalid && title?.touched) {
           <p class="text-red-600 text-sm mt-1">
             @if (title?.errors?.['required']) {
-              {{ 'form.titleRequired' | translate }}
+              <span i18n="@@form.titleRequired">Title is required</span>
             }
             @if (title?.errors?.['minlength']) {
-              {{ 'form.titleMinLength' | translate }}
+              <span i18n="@@form.titleMinLength">Title must be at least 3 characters</span>
             }
           </p>
         }
       </div>
 
       <div>
-        <label for="description" appLabel class="mb-1 block">
-          {{ 'form.descriptionLabel' | translate }}
+        <label for="description" appLabel class="mb-1 block" i18n="@@form.descriptionLabel">
+          Description
         </label>
         <textarea
           id="description"
           formControlName="description"
           rows="4"
           appTextarea
-          [placeholder]="'form.descriptionPlaceholder' | translate">
+          placeholder="Enter todo description"
+          i18n-placeholder="@@form.descriptionPlaceholder">
         </textarea>
       </div>
 
@@ -61,7 +62,7 @@ import { ButtonDirective, InputDirective, TextareaDirective, LabelDirective } fr
           variant="secondary"
           (click)="onCancel()"
           class="flex-1">
-          {{ 'common.cancel' | translate }}
+          <span i18n="@@common.cancel">Cancel</span>
         </button>
       </div>
     </form>

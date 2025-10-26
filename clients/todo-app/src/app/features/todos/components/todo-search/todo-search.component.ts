@@ -1,17 +1,17 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import { InputDirective } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-todo-search',
   standalone: true,
-  imports: [FormsModule, TranslateModule, InputDirective],
+  imports: [FormsModule, InputDirective],
   template: `
     <div class="mb-6">
       <input
         type="text"
-        [placeholder]="'common.search' | translate"
+        placeholder="Search..."
+        i18n-placeholder="@@common.search"
         [(ngModel)]="searchTerm"
         (ngModelChange)="onSearchChange()"
         appInput />

@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   DialogComponent,
   DialogHeaderComponent,
@@ -16,7 +15,6 @@ import { LucideAngularModule, AlertTriangle } from 'lucide-angular';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule,
     DialogComponent,
     DialogHeaderComponent,
     DialogTitleComponent,
@@ -39,7 +37,9 @@ import { LucideAngularModule, AlertTriangle } from 'lucide-angular';
       </app-dialog-header>
 
       <app-dialog-footer>
-        <button appButton variant="outline" (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
+        <button appButton variant="outline" (click)="onCancel()">
+          <span i18n="@@common.cancel">Cancel</span>
+        </button>
         <button appButton variant="destructive" (click)="onConfirm()">
           {{ confirmLabel }}
         </button>
