@@ -11,7 +11,53 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # Job 1: Detect what changed using Turborepo
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.check.outputs.has-changes }}
+      projects: ${{ steps.affected.outputs.projects }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get affected projects
+        id: affected
+        run: |
+          # Get affected projects based on changes
+          AFFECTED_JSON=$(npx turbo run build --filter='...[origin/main]' --dry=json 2>/dev/null || echo '{"tasks":[]}')
+          
+          # Extract unique package names
+          PROJECTS=$(echo "$AFFECTED_JSON" | jq -c '[.tasks[] | select(.task == "build" and .package != null) | .package] | unique')
+          
+          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+          echo "Affected projects: $PROJECTS"
+
+      - name: Check if any projects changed
+        id: check
+        run: |
+          PROJECTS='${{ steps.affected.outputs.projects }}'
+          if [ "$PROJECTS" = "[]" ] || [ "$PROJECTS" = "null" ]; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Job 2: Build and push only affected projects
   build-and-push:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has-changes == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,31 +65,42 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - name: todo-service
-            context: ./services/todo-service
-            package: todo-service
-          - name: notification-service
-            context: ./services/notification-service
-            package: notification-service
-          - name: todo-app
-            context: ./clients/todo-app
-            package: todo-app
+        project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js (for version reading)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      - name: Determine project details
+        id: project
+        run: |
+          PROJECT="${{ matrix.project }}"
+          
+          if [ "$PROJECT" = "todo-service" ]; then
+            echo "context=./services/todo-service" >> $GITHUB_OUTPUT
+            echo "name=todo-service" >> $GITHUB_OUTPUT
+            echo "port=8080" >> $GITHUB_OUTPUT
+          elif [ "$PROJECT" = "notification-service" ]; then
+            echo "context=./services/notification-service" >> $GITHUB_OUTPUT
+            echo "name=notification-service" >> $GITHUB_OUTPUT
+            echo "port=8081" >> $GITHUB_OUTPUT
+          elif [ "$PROJECT" = "todo-app" ]; then
+            echo "context=./clients/todo-app" >> $GITHUB_OUTPUT
+            echo "name=todo-app" >> $GITHUB_OUTPUT
+            echo "port=80" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get package version
         id: package-version
         run: |
-          if [ -f "${{ matrix.context }}/package.json" ]; then
-            VERSION=$(node -p "require('${{ matrix.context }}/package.json').version")
+          CONTEXT="${{ steps.project.outputs.context }}"
+          if [ -f "$CONTEXT/package.json" ]; then
+            VERSION=$(node -p "require('$CONTEXT/package.json').version")
             echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
             echo "version=latest" >> $GITHUB_OUTPUT
@@ -60,7 +117,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.name }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ steps.project.outputs.name }}
           tags: |
             type=raw,value=${{ steps.package-version.outputs.version }}
             type=sha,prefix={{branch}}-
@@ -70,7 +127,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
+          context: ${{ steps.project.outputs.context }}
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SERVICE_PORT=${{ steps.project.outputs.port }}
