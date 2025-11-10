@@ -1,0 +1,19 @@
+{
+  "name": "todo-monorepo",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "clients/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "docker:build": "turbo run docker:build",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "@changesets/cli": "^2.27.0"
+  }
+}

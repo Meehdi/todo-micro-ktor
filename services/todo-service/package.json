@@ -1,0 +1,9 @@
+{
+  "name": "todo-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "./gradlew build -x test",
+    "docker:build": "echo 'Building todo-service docker image'"
+  }
+}
